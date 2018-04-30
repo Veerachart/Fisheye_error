@@ -3,22 +3,22 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 
-cam_x = np.arange(0.0, 0.01, 0.1)
-cam_y = np.arange(1.9, 1.91, 0.1)
+cam_x = np.arange(0.0, 1.76, 0.1)
+cam_y = np.arange(0.0, 1.51, 0.1)
 # cam_x = np.arange(0, 0.11, 0.1)
 # cam_y = np.arange(0, 0.11, 0.1)
 
-x_lim = [0.0,9.0]
+x_lim = [0.0,3.5]
 # x_lim = [7.0, 7.0]
-y_lim = [0.0,4.5]
+y_lim = [0.0,3.0]
 # y_lim = [4.5, 4.5]
-z_lim = [0.2,0.2]
+z_lim = [0.3,2.0]
 # x_lim = [-3.,4.1]
 # y_lim = [-2.2,2.3]
 
-x_span = np.arange(x_lim[0], x_lim[1]+0.001, 0.25)
-y_span = np.arange(y_lim[0], y_lim[1]+0.001, 0.25)
-z_span = np.arange(z_lim[0], z_lim[1]+0.001, 0.25)
+x_span = np.arange(x_lim[0], x_lim[1]+0.001, 0.1)#0.25)
+y_span = np.arange(y_lim[0], y_lim[1]+0.001, 0.1)#0.25)
+z_span = np.arange(z_lim[0], z_lim[1]+0.001, 0.1)#0.25)
 # yaw_span = np.arange(0, 2*np.pi, np.pi/3)
 
 x_points, y_points = np.meshgrid(x_span, y_span)
@@ -43,15 +43,19 @@ def calculate_error(cam_pos = (0.5, 0.5), yaw=None, sigma_u=1):
     # var_pixels = np.diag([sigma_u ** 2, sigma_u ** 2])
     # var_xcam = np.diag([sigma_u ** 2 / m ** 2, sigma_u ** 2 / m ** 2])
 
-    directory = '/home/otalab/Python-dir/Fisheye_error/Errors/sigma' + str(sigma_u) + 'px/VeryDetailed/'
+    directory = '/home/otalab/Python-dir/Fisheye_error/Errors/firstenv/sigma'+str(sig)+'px/'
 
-    T_cam1 = np.array([[4.5-cam_pos[0]], [2.25-cam_pos[1]], [0]])
+    #T_cam1 = np.array([[4.5-cam_pos[0]], [2.25-cam_pos[1]], [0]])
+    T_cam1 = np.array([[1.75-cam_pos[0]], [1.5-cam_pos[1]], [0]])
     R1 = np.array([[np.cos(yaw), -np.sin(yaw), 0], [np.sin(yaw), np.cos(yaw), 0], [0, 0, 1]])
-    H_cam1 = np.array([[np.cos(yaw), -np.sin(yaw), 0, 4.5-cam_pos[0]], [np.sin(yaw), np.cos(yaw), 0, 2.25-cam_pos[1]], [0, 0, 1, 0], [0, 0, 0, 1]])
+    #H_cam1 = np.array([[np.cos(yaw), -np.sin(yaw), 0, 4.5-cam_pos[0]], [np.sin(yaw), np.cos(yaw), 0, 2.25-cam_pos[1]], [0, 0, 1, 0], [0, 0, 0, 1]])
+    H_cam1 = np.array([[np.cos(yaw), -np.sin(yaw), 0, 1.75-cam_pos[0]], [np.sin(yaw), np.cos(yaw), 0, 1.5-cam_pos[1]], [0, 0, 1, 0], [0, 0, 0, 1]])
 
-    T_cam2 = np.array([[4.5+cam_pos[0]], [cam_pos[1]+2.25], [0]])
+    #T_cam2 = np.array([[4.5+cam_pos[0]], [cam_pos[1]+2.25], [0]])
+    T_cam2 = np.array([[1.75+cam_pos[0]], [cam_pos[1]+1.5], [0]])
     R2 = np.array([[np.cos(yaw), -np.sin(yaw), 0], [np.sin(yaw), np.cos(yaw), 0], [0, 0, 1]])
-    H_cam2 = np.array([[np.cos(yaw), -np.sin(yaw), 0, 4.5+cam_pos[0]], [np.sin(yaw), np.cos(yaw), 0, cam_pos[1]+2.25], [0, 0, 1, 0], [0, 0, 0, 1]])
+    #H_cam2 = np.array([[np.cos(yaw), -np.sin(yaw), 0, 4.5+cam_pos[0]], [np.sin(yaw), np.cos(yaw), 0, cam_pos[1]+2.25], [0, 0, 1, 0], [0, 0, 0, 1]])
+    H_cam2 = np.array([[np.cos(yaw), -np.sin(yaw), 0, 1.75+cam_pos[0]], [np.sin(yaw), np.cos(yaw), 0, cam_pos[1]+1.5], [0, 0, 1, 0], [0, 0, 0, 1]])
 
     H = np.dot(np.linalg.inv(H_cam1),H_cam2)
 
@@ -353,44 +357,90 @@ def calculate_error(cam_pos = (0.5, 0.5), yaw=None, sigma_u=1):
                 var_combi[2:,2:] = var_beta_psi2
 
                 J_p3 = np.zeros((3,4))
-                temp = -baseline*(np.array([[c_psi2*(-s_psi*np.cos(disparity)/(np.sin(disparity)**2) + c_psi/np.sin(disparity))],
-                                            [-c_psi2*s_beta*(c_psi*np.cos(disparity)/(np.sin(disparity)**2) + s_psi/np.sin(disparity))],
-                                            [-c_psi2*c_beta*(c_psi*np.cos(disparity)/(np.sin(disparity)**2) + s_psi/np.sin(disparity))]]))
+#                J_p3_old = np.zeros((3,4))
+#                temp1 = -baseline*(np.array([[c_psi2*(-s_psi*np.cos(disparity)/(np.sin(disparity)**2) + c_psi/np.sin(disparity))],
+#                                            [-c_psi2*s_beta*(c_psi*np.cos(disparity)/(np.sin(disparity)**2) + s_psi/np.sin(disparity))],
+#                                            [-c_psi2*c_beta*(c_psi*np.cos(disparity)/(np.sin(disparity)**2) + s_psi/np.sin(disparity))]]))
+                temp = -baseline*c_psi2/np.sin(disparity)**2*(np.array([[s_psi2],
+                                                                        [s_beta*c_psi2],
+                                                                        [c_beta*c_psi2]]))
                 J_p3[0, 0] = temp[0, 0]
                 J_p3[1, 0] = temp[1, 0]
                 J_p3[2, 0] = temp[2, 0]
+#                J_p3_old[0, 0] = temp1[0, 0]
+#                J_p3_old[1, 0] = temp1[1, 0]
+#                J_p3_old[2, 0] = temp1[2, 0]
                 temp = baseline*c_psi2/np.sin(disparity) * np.array([[0], [c_psi*c_beta], [-c_psi*s_beta]])
                 J_p3[0, 1] = temp[0, 0]
                 J_p3[1, 1] = temp[1, 0]
                 J_p3[2, 1] = temp[2, 0]
-                temp = baseline*(c_psi2*np.cos(disparity)/(np.sin(disparity))**2 - s_psi2/np.sin(disparity)) * np.array([[s_psi], [c_psi*s_beta], [c_psi*c_beta]])
+#                J_p3_old[0, 1] = temp[0, 0]
+#                J_p3_old[1, 1] = temp[1, 0]
+#                J_p3_old[2, 1] = temp[2, 0]
+#                temp1 = baseline*(c_psi2*np.cos(disparity)/(np.sin(disparity))**2 - s_psi2/np.sin(disparity)) * np.array([[s_psi], [c_psi*s_beta], [c_psi*c_beta]])
+                temp = baseline*c_psi/np.sin(disparity)**2*(np.array([[s_psi],
+                                                                      [-s_beta*c_psi],
+                                                                      [-c_beta*c_psi]]))
                 J_p3[0, 2] = temp[0, 0]
                 J_p3[1, 2] = temp[1, 0]
                 J_p3[2, 2] = temp[2, 0]
+#                J_p3_old[0, 2] = temp1[0, 0]
+#                J_p3_old[1, 2] = temp1[1, 0]
+#                J_p3_old[2, 2] = temp1[2, 0]
 
                 var_p3 = np.dot(np.dot(J_p3, var_combi), J_p3.transpose())
                 var_p3 = np.dot(np.dot(np.dot(R1,R_align.transpose()), var_p3), np.dot(R_align, R1.transpose()))
-
+                
                 U, s, rotation = np.linalg.svd(var_p3)
                 radii = np.sqrt(s) #* 3.
                 # SIGMA[i,j,k] = np.sqrt((radii[0]/3.)**2 + (radii[1]/3.)**2 + (radii[2]/3.)**2)
-                SIGMA[i, j, k] = np.sqrt((radii[0])**2 + (radii[1])**2 + (radii[2])**2)
-
-                # if abs(z_span[k]-0.3) < 1e-6:
-                u = np.linspace(0.0, 2.0 * np.pi, 18)
-                v = np.linspace(0.0, np.pi, 18)
-
-                x = radii[0] * np.outer(np.cos(u), np.sin(v))
-                y = radii[1] * np.outer(np.sin(u), np.sin(v))
-                z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
-
-                center = [x_span[i], y_span[j], z_span[k]]
-
-                for a in range(len(x)):
-                    for b in range(len(x)):
-                        [x[a, b], y[a, b], z[a, b]] = np.dot([x[a, b], y[a, b], z[a, b]], rotation) + center
-
-                ax3.plot_wireframe(x, y, z, rstride=4, cstride=4, color='b', alpha=0.2)
+                # SIGMA[i, j, k] = np.sqrt((radii[0])**2 + (radii[1])**2 + (radii[2])**2)
+                SIGMA[i, j, k] = radii.max()
+                
+                if abs(z_span[k]-1.1) < 0.001:                # around head's height
+                    # if abs(z_span[k]-0.3) < 1e-6:
+                    u = np.linspace(0.0, 2.0 * np.pi, 18)
+                    v = np.linspace(0.0, np.pi, 18)
+    
+                    x = radii[0] * np.outer(np.cos(u), np.sin(v))
+                    y = radii[1] * np.outer(np.sin(u), np.sin(v))
+                    z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
+    
+                    center = [x_span[i], y_span[j], z_span[k]]
+    
+                    for a in range(len(x)):
+                        for b in range(len(x)):
+                            [x[a, b], y[a, b], z[a, b]] = np.dot([x[a, b], y[a, b], z[a, b]], rotation) + center
+    
+                    ax3.plot_wireframe(x, y, z, rstride=4, cstride=4, color='b', alpha=0.2)
+                
+#                var_p3_old = np.dot(np.dot(J_p3, var_combi), J_p3.transpose())
+#                var_p3_old = np.dot(np.dot(np.dot(R1,R_align.transpose()), var_p3_old), np.dot(R_align, R1.transpose()))
+#                
+#                diff = (np.abs(var_p3 - var_p3_old)).sum()
+#                if diff != 0:
+#                    print diff
+#
+#                U, s, rotation = np.linalg.svd(var_p3_old)
+#                radii = np.sqrt(s) #* 3.
+#                # SIGMA[i,j,k] = np.sqrt((radii[0]/3.)**2 + (radii[1]/3.)**2 + (radii[2]/3.)**2)
+#                #SIGMA[i, j, k] = np.sqrt((radii[0])**2 + (radii[1])**2 + (radii[2])**2)
+#
+#                # if abs(z_span[k]-0.3) < 1e-6:
+#                u = np.linspace(0.0, 2.0 * np.pi, 18)
+#                v = np.linspace(0.0, np.pi, 18)
+#
+#                x = radii[0] * np.outer(np.cos(u), np.sin(v))
+#                y = radii[1] * np.outer(np.sin(u), np.sin(v))
+#                z = radii[2] * np.outer(np.ones_like(u), np.cos(v))
+#
+#                center = [x_span[i], y_span[j], z_span[k]]
+#
+#                for a in range(len(x)):
+#                    for b in range(len(x)):
+#                        [x[a, b], y[a, b], z[a, b]] = np.dot([x[a, b], y[a, b], z[a, b]], rotation) + center
+#
+#                ax3.plot_wireframe(x, y, z, rstride=4, cstride=4, color='r', alpha=0.2)
 
                 # U, s, rotation = np.linalg.svd(var_p4)
                 # radii = np.sqrt(s) * 3
@@ -466,12 +516,12 @@ def calculate_error(cam_pos = (0.5, 0.5), yaw=None, sigma_u=1):
     # ax2.set_ylabel('y')
     # ax2.set_zlabel('z')
 
-    ax3.scatter(4.5-cam_pos[0], 2.25-cam_pos[1], 0, c='r', marker='*', s=100)
-    ax3.scatter(4.5+cam_pos[0], 2.25+cam_pos[1], 0, c='r', marker='*', s=100)
+    ax3.scatter(1.75-cam_pos[0], 1.5-cam_pos[1], 0, c='r', marker='*', s=100)
+    ax3.scatter(1.75+cam_pos[0], 1.5+cam_pos[1], 0, c='r', marker='*', s=100)
 
-    ax3.set_xlim([0, 9])
-    ax3.set_ylim([-2, 7])
-    ax3.set_zlim([0, 1])
+    ax3.set_xlim([0, 3.5])
+    ax3.set_ylim([-0.25,3.25])
+    ax3.set_zlim([0, 1.5])
     ax3.set_xlabel('x')
     ax3.set_ylabel('y')
     ax3.set_zlabel('z')
@@ -554,19 +604,19 @@ def calculate_error(cam_pos = (0.5, 0.5), yaw=None, sigma_u=1):
     print SIGMA.mean(), SIGMA.min(), SIGMA.max()
     # print SIGMA[:,len(y_span)/2]
     #
-    # filename = 'graph_var%02d-%02d' % (cam_pos[0]*10, cam_pos[1]*10)
-    # filename = directory + filename + '.png'
+    filename = 'graph_var%02d-%02d' % (cam_pos[0]*10, cam_pos[1]*10)
+    filename = directory + filename + '.pdf'
     plt.show()
-    # fig3.savefig('Optimal3D.png', dpi=600, facecolor='w', edgecolor='w',
-    #         format='png', transparent=True, bbox_inches='tight', pad_inches=0.1,
-    #         frameon=None)
-    # plt.close(fig3)
+    fig3.savefig(filename, facecolor='w', edgecolor='w',
+            format='pdf', transparent=True, bbox_inches='tight', pad_inches=0.1,
+            frameon=None)
+    plt.close(fig3)
     return SIGMA
 
 for sig in sig_u:
     MAX = np.zeros((len(cam_x), len(cam_y)))
     MEAN = np.zeros((len(cam_x), len(cam_y)))
-    directory = '/home/otalab/Python-dir/Fisheye_error/Errors/sigma'+str(sig)+'px/VeryDetailed/'
+    directory = '/home/otalab/Python-dir/Fisheye_error/Errors/firstenv/sigma'+str(sig)+'px/'
 
     for a in range(len(cam_x)):
         for b in range(len(cam_y)):
